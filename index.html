@@ -31,6 +31,7 @@
         }
         #input-line {
             display: flex;
+            margin-top: 10px;
         }
         #prompt {
             margin-right: 5px;
@@ -60,12 +61,12 @@
 </head>
 <body>
     <div id="terminal">
+        <div id="output"></div>
         <div id="input-line">
             <span id="prompt">&gt;</span>
             <input type="text" id="input" autocomplete="off">
             <span class="cursor"></span>
         </div>
-        <div id="output"></div>
     </div>
 
     <script>
