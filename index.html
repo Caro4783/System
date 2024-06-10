@@ -36,13 +36,12 @@
             margin-right: 5px;
         }
         #input {
-            flex: 1;
             background-color: black;
             color: green;
             border: none;
             font-family: monospace;
             font-size: 16px;
-            caret-color: transparent;
+            caret-color: green;
         }
         #input:focus {
             outline: none;
@@ -50,23 +49,23 @@
         .cursor {
             display: inline-block;
             background-color: green;
-            animation: blink 1s step-start infinite;
+            animation: blink 0.8s infinite;
         }
         @keyframes blink {
             50% {
-                background-color: black;
+                opacity: 0;
             }
         }
     </style>
 </head>
 <body>
     <div id="terminal">
-        <div id="output"></div>
         <div id="input-line">
             <span id="prompt">&gt;</span>
             <input type="text" id="input" autocomplete="off">
-            <span class="cursor">█</span>
+            <span class="cursor"></span>
         </div>
+        <div id="output"></div>
     </div>
 
     <script>
@@ -128,7 +127,8 @@
         }
 
         inputElement.addEventListener('input', function() {
-            cursorElement.style.left = `${inputElement.value.length + 1}ch`;
+            cursorElement.style.display = 'inline-block';
+            cursorElement.style.animationPlayState = 'running';
         });
 
         inputElement.addEventListener('keydown', function(event) {
@@ -137,12 +137,12 @@
                 printToOutput(`> ${command}`);
                 processCommand(command);
                 inputElement.value = '';
-                cursorElement.style.left = '1ch';
+                cursorElement.style.display = 'inline-block';
+                cursorElement.style.animationPlayState = 'running';
             }
         });
 
         window.onload = function() {
-            inputElement.focus();
             printToOutput('Welcome to the terminal interface.');
         };
 
