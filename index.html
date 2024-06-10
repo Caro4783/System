@@ -126,23 +126,22 @@
             'tell me a joke': [
                 "Why don't scientists trust atoms? Because they make up everything!",
                 "I told my wife she was drawing her eyebrows too high. She looked surprised.",
-                "What do you get when you cross a snowman and a vampire? Frostbite!",
-                "How many D-Class do you need to change a lightbulb? Not more then 5 cause then you need to ask the Ethics Committee!
+                "What do you get when you cross a snowman and a vampire? Frostbite!"
             ],
-            'do a backflip': [
-                "I'm sorry, I am unable to do a backflip",
+            'open the pod bay doors': [
+                "I'm sorry, Dave. I'm afraid I can't do that.",
                 "I'm sorry, I'm afraid I can't comply with that request.",
-                "*does a Backflip*"
+                "I'm afraid I can't do that, Dave."
             ],
             'how are you': [
                 "I'm just a program, I don't have feelings, but thank you for asking!",
-                "Beep Boop",
+                "I'm doing well, thank you!",
                 "I'm functioning within normal parameters."
             ],
             'what is the meaning of life': [
                 "The answer to the ultimate question of life, the universe, and everything is 42.",
-                "42",
-                "Banana"
+                "The meaning of life is to give life meaning.",
+                "Life is what you make it!"
             ]
         };
 
@@ -191,7 +190,7 @@
                 if (parts.length === 3) {
                     const username = parts[1];
                     const password = parts[2];
-                    if                    (validCredentials[username] && validCredentials[username] === password) {
+                                        if (validCredentials[username] && validCredentials[username] === password) {
                         showLoadingDots(() => {
                             loggedIn = true;
                             printToOutput(`Login successful. Welcome ${userGreetings[username]} to SynthiaAI, how can I assist?`);
@@ -223,8 +222,7 @@
         }
 
         function handleFunCommands(command) {
-            const funCommandKeys = Object.keys(funResponses);
-            if (funCommandKeys.includes(command)) {
+            if (funResponses.hasOwnProperty(command)) {
                 const responses = funResponses[command];
                 const randomIndex = Math.floor(Math.random() * responses.length);
                 printToOutput(responses[randomIndex]);
