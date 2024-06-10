@@ -117,6 +117,34 @@
             Text2: 'This is the content of Text2.'
         };
 
+        const funResponses = {
+            'who are you': [
+                "I'm SynthiaAI, a virtual assistant designed to assist you.",
+                "I'm your friendly neighborhood AI, here to help!",
+                "I'm SynthiaAI, at your service!"
+            ],
+            'tell me a joke': [
+                "Why don't scientists trust atoms? Because they make up everything!",
+                "I told my wife she was drawing her eyebrows too high. She looked surprised.",
+                "What do you get when you cross a snowman and a vampire? Frostbite!"
+            ],
+            'open the pod bay doors': [
+                "I'm sorry, Dave. I'm afraid I can't do that.",
+                "I'm sorry, I'm afraid I can't comply with that request.",
+                "I'm afraid I can't do that, Dave."
+            ],
+            'how are you': [
+                "I'm just a program, I don't have feelings, but thank you for asking!",
+                "I'm doing well, thank you!",
+                "I'm functioning within normal parameters."
+            ],
+            'what is the meaning of life': [
+                "The answer to the ultimate question of life, the universe, and everything is 42.",
+                "The meaning of life is to give life meaning.",
+                "Life is what you make it!"
+            ]
+        };
+
         let loggedIn = false;
 
         function printToOutput(text, className = '') {
@@ -162,7 +190,7 @@
                 if (parts.length === 3) {
                     const username = parts[1];
                     const password = parts[2];
-                    if (validCredentials[username] && validCredentials[username] === password) {
+                    if                    (validCredentials[username] && validCredentials[username] === password) {
                         showLoadingDots(() => {
                             loggedIn = true;
                             printToOutput(`Login successful. Welcome ${userGreetings[username]} to SynthiaAI, how can I assist?`);
@@ -170,47 +198,59 @@
                     } else {
                         printToOutput('Invalid username or password.', 'error');
                     }
-            } else {
-                printToOutput('Usage: !login [username] [password]');
-            }
-        } else if (mainCommand === '!access') {
-            if (!loggedIn) {
-                printToOutput('You must be logged in to use this command.', 'error');
-                return;
-            }
-            if (parts.length === 2) {
-                const textName = parts[1];
-                if (accessibleTexts[textName]) {
-                    printToOutput(accessibleTexts[textName]);
                 } else {
-                    printToOutput(`Text "${textName}" not found.`, 'error');
+                    printToOutput('Usage: !login [username] [password]');
+                }
+            } else if (mainCommand === '!access') {
+                if (!loggedIn) {
+                    printToOutput('You must be logged in to use this command.', 'error');
+                    return;
+                }
+                if (parts.length === 2) {
+                    const textName = parts[1];
+                    if (accessibleTexts[textName]) {
+                        printToOutput(accessibleTexts[textName]);
+                    } else {
+                        printToOutput(`Text "${textName}" not found.`, 'error');
+                    }
+                } else {
+                    printToOutput('Usage: !access [textname]');
                 }
             } else {
-                printToOutput('Usage: !access [textname]');
+                handleFunCommands(command.toLowerCase());
             }
-        } else {
-            printToOutput(`Unknown command: ${mainCommand}`, 'error');
         }
-    }
 
-    inputElement.addEventListener('keydown', function(event) {
-        if (event.key === 'Enter') {
-            const command = inputElement.value;
-            outputElement.innerHTML += `> ${command}\n`;
-            processCommand(command);
-            inputElement.value = '';
-            cursorElement.style.display = 'inline-block';
-            cursorElement.style.animationPlayState = 'running';
+        function handleFunCommands(command) {
+            const funCommandKeys = Object.keys(funResponses);
+            if (funCommandKeys.includes(command)) {
+                const responses = funResponses[command];
+                const randomIndex = Math.floor(Math.random() * responses.length);
+                printToOutput(responses[randomIndex]);
+            } else {
+                printToOutput("I'm sorry, I don't understand that command.", 'error');
+            }
         }
-    });
 
-    window.onload = function() {
-        printToOutput('Welcome to SynthiaAInet. v2.0 System status: Online, Stable');
-    };
+        inputElement.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                const command = inputElement.value;
+                outputElement.innerHTML += `> ${command}\n`;
+                processCommand(command);
+                inputElement.value = '';
+                cursorElement.style.display = 'inline-block';
+                cursorElement.style.animationPlayState = 'running';
+            }
+        });
 
-    window.addEventListener('click', function() {
-        inputElement.focus();
-    });
-</script>
+        window.onload = function() {
+            printToOutput('Welcome to SynthiaAInet. v2.0 System status: Online, Stable');
+        };
 
-               
+        window.addEventListener('click', function() {
+            inputElement.focus();
+        });
+    </script>
+</body>
+</html>
+
