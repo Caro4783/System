@@ -43,6 +43,9 @@
             font-family: monospace;
             font-size: 16px;
             caret-color: green;
+            display: inline-block;
+            width: auto;
+            flex: 1;
         }
         #input:focus {
             outline: none;
@@ -56,6 +59,9 @@
             50% {
                 opacity: 0;
             }
+        }
+        .error {
+            color: red;
         }
     </style>
 </head>
@@ -75,8 +81,35 @@
         const cursorElement = document.querySelector('.cursor');
 
         const validCredentials = {
-            username: 'admin',
-            password: '12345'
+            'E-00': 'Ethicc123',
+            'E-01': 'Ethicc123',
+            'E-02': 'Ethicc123',
+            'E-03': 'Ethicc123',
+            'E-04': 'Ethicc123',
+            'E-05': 'Ethicc123',
+            'E-06': 'Ethicc123',
+            'E-07': 'Ethicc123',
+            'E-08': 'Ethicc123',
+            'E-09': 'Ethicc123',
+            'E-10': 'Ethicc123',
+            'E-11': 'Ethicc123',
+            'E-12': 'Ethicc123'
+        };
+
+        const userGreetings = {
+            'E-00': 'Eldritch',
+            'E-01': 'Choice',
+            'E-02': 'Tetorion',
+            'E-03': 'Rhapsody',
+            'E-04': 'Iustitia',
+            'E-05': 'Nova',
+            'E-06': 'Vendetta',
+            'E-07': 'Ethios',
+            'E-08': 'Davros',
+            'E-09': 'Lullaby',
+            'E-10': 'Venom',
+            'E-11': 'Bug',
+            'E-12': 'Leafon'
         };
 
         const accessibleTexts = {
@@ -86,9 +119,40 @@
 
         let loggedIn = false;
 
-        function printToOutput(text) {
-            outputElement.innerHTML += text + '\n';
-            outputElement.scrollTop = outputElement.scrollHeight;
+        function printToOutput(text, className = '') {
+            let index = 0;
+            function typeNextChar() {
+                if (index < text.length) {
+                    if (className) {
+                        outputElement.innerHTML += `<span class="${className}">${text[index]}</span>`;
+                    } else {
+                        outputElement.innerHTML += text[index];
+                    }
+                    index++;
+                    outputElement.scrollTop = outputElement.scrollHeight;
+                    setTimeout(typeNextChar, 25); // Adjust the typing speed here
+                } else {
+                    outputElement.innerHTML += '\n';
+                }
+            }
+            typeNextChar();
+        }
+
+        function showLoadingDots(callback) {
+            const loadingText = 'Loading';
+            let dots = '';
+            let count = 0;
+            function addDot() {
+                if (count < 3) {
+                    dots += '.';
+                    printToOutput(loadingText + dots);
+                    count++;
+                    setTimeout(addDot, 1000);
+                } else {
+                    callback();
+                }
+            }
+            addDot();
         }
 
         function processCommand(command) {
@@ -98,58 +162,55 @@
                 if (parts.length === 3) {
                     const username = parts[1];
                     const password = parts[2];
-                    if (username === validCredentials.username && password === validCredentials.password) {
-                        loggedIn = true;
-                        printToOutput('Login successful!');
+                    if (validCredentials[username] && validCredentials[username] === password) {
+                        showLoadingDots(() => {
+                            loggedIn = true;
+                            printToOutput(`Login successful. Welcome ${userGreetings[username]} to SynthiaAI, how can I assist?`);
+                        });
                     } else {
-                        printToOutput('Invalid username or password.');
+                        printToOutput('Invalid username or password.', 'error');
                     }
+            } else {
+                printToOutput('Usage: !login [username] [password]');
+            }
+        } else if (mainCommand === '!access') {
+            if (!loggedIn) {
+                printToOutput('You must be logged in to use this command.', 'error');
+                return;
+            }
+            if (parts.length === 2) {
+                const textName = parts[1];
+                if (accessibleTexts[textName]) {
+                    printToOutput(accessibleTexts[textName]);
                 } else {
-                    printToOutput('Usage: !login [username] [password]');
-                }
-            } else if (mainCommand === '!access') {
-                if (!loggedIn) {
-                    printToOutput('You must be logged in to use this command.');
-                    return;
-                }
-                if (parts.length === 2) {
-                    const textName = parts[1];
-                    if (accessibleTexts[textName]) {
-                        printToOutput(accessibleTexts[textName]);
-                    } else {
-                        printToOutput(`Text "${textName}" not found.`);
-                    }
-                } else {
-                    printToOutput('Usage: !access [textname]');
+                    printToOutput(`Text "${textName}" not found.`, 'error');
                 }
             } else {
-                printToOutput(`Unknown command: ${mainCommand}`);
+                printToOutput('Usage: !access [textname]');
             }
+        } else {
+            printToOutput(`Unknown command: ${mainCommand}`, 'error');
         }
+    }
 
-        inputElement.addEventListener('input', function() {
+    inputElement.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            const command = inputElement.value;
+            outputElement.innerHTML += `> ${command}\n`;
+            processCommand(command);
+            inputElement.value = '';
             cursorElement.style.display = 'inline-block';
             cursorElement.style.animationPlayState = 'running';
-        });
+        }
+    });
 
-        inputElement.addEventListener('keydown', function(event) {
-            if (event.key === 'Enter') {
-                const command = inputElement.value;
-                printToOutput(`> ${command}`);
-                processCommand(command);
-                inputElement.value = '';
-                cursorElement.style.display = 'inline-block';
-                cursorElement.style.animationPlayState = 'running';
-            }
-        });
+    window.onload = function() {
+        printToOutput('Welcome to SynthiaAInet. v2.0 System status: Online, Stable');
+    };
 
-        window.onload = function() {
-            printToOutput('Welcome to the terminal interface.');
-        };
+    window.addEventListener('click', function() {
+        inputElement.focus();
+    });
+</script>
 
-        window.addEventListener('click', function() {
-            inputElement.focus();
-        });
-    </script>
-</body>
-</html>
+               
