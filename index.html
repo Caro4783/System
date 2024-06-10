@@ -31,10 +31,14 @@
         }
         #input-line {
             display: flex;
-            margin-top: 10px;
         }
         #prompt {
             margin-right: 5px;
+        }
+        #input-container {
+            position: relative;
+            flex: 1;
+            display: flex;
         }
         #input {
             background-color: black;
@@ -42,20 +46,30 @@
             border: none;
             font-family: monospace;
             font-size: 16px;
-            caret-color: green;
+            caret-color: transparent;
+            flex: 1;
         }
         #input:focus {
             outline: none;
         }
         .cursor {
+            position: absolute;
+            top: 0;
             display: inline-block;
             background-color: green;
-            animation: blink 0.8s infinite;
+            animation: blink 0.8s steps(1) infinite;
+            font-family: monospace;
         }
         @keyframes blink {
             50% {
-                opacity: 0;
+                visibility: hidden;
             }
+        }
+        #measure {
+            visibility: hidden;
+            white-space: pre;
+            font-family: monospace;
+            font-size: 16px;
         }
     </style>
 </head>
@@ -64,8 +78,11 @@
         <div id="output"></div>
         <div id="input-line">
             <span id="prompt">&gt;</span>
-            <input type="text" id="input" autocomplete="off">
-            <span class="cursor"></span>
+            <div id="input-container">
+                <input type="text" id="input" autocomplete="off">
+                <span class="cursor">█</span>
+                <span id="measure"></span>
+            </div>
         </div>
     </div>
 
@@ -73,6 +90,7 @@
         const outputElement = document.getElementById('output');
         const inputElement = document.getElementById('input');
         const cursorElement = document.querySelector('.cursor');
+        const measureElement = document.getElementById('measure');
 
         const validCredentials = {
             username: 'admin',
@@ -128,8 +146,8 @@
         }
 
         inputElement.addEventListener('input', function() {
-            cursorElement.style.display = 'inline-block';
-            cursorElement.style.animationPlayState = 'running';
+            measureElement.textContent = inputElement.value;
+            cursorElement.style.left = `${measureElement.offsetWidth}px`;
         });
 
         inputElement.addEventListener('keydown', function(event) {
@@ -138,13 +156,188 @@
                 printToOutput(`> ${command}`);
                 processCommand(command);
                 inputElement.value = '';
-                cursorElement.style.display = 'inline-block';
-                cursorElement.style.animationPlayState = 'running';
+                measureElement.textContent = '';
+                cursorElement.style.left = '0px';
             }
         });
 
         window.onload = function() {
             printToOutput('Welcome to the terminal interface.');
+            inputElement.focus();
+        };
+
+        window.addEventListener('click', function() {
+            inputElement.focus();
+        });
+    </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terminal Interface</title>
+    <style>
+        body {
+            background-color: black;
+            color: green;
+            font-family: monospace;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        #terminal {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        #output {
+            flex: 1;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            margin-bottom: 10px;
+        }
+        #input-line {
+            display: flex;
+        }
+        #prompt {
+            margin-right: 5px;
+        }
+        #input-container {
+            position: relative;
+            flex: 1;
+            display: flex;
+        }
+        #input {
+            background-color: black;
+            color: green;
+            border: none;
+            font-family: monospace;
+            font-size: 16px;
+            caret-color: transparent;
+            flex: 1;
+        }
+        #input:focus {
+            outline: none;
+        }
+        .cursor {
+            position: absolute;
+            top: 0;
+            display: inline-block;
+            background-color: green;
+            animation: blink 0.8s steps(1) infinite;
+            font-family: monospace;
+        }
+        @keyframes blink {
+            50% {
+                visibility: hidden;
+            }
+        }
+        #measure {
+            visibility: hidden;
+            white-space: pre;
+            font-family: monospace;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div id="terminal">
+        <div id="output"></div>
+        <div id="input-line">
+            <span id="prompt">&gt;</span>
+            <div id="input-container">
+                <input type="text" id="input" autocomplete="off">
+                <span class="cursor">█</span>
+                <span id="measure"></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const outputElement = document.getElementById('output');
+        const inputElement = document.getElementById('input');
+        const cursorElement = document.querySelector('.cursor');
+        const measureElement = document.getElementById('measure');
+
+        const validCredentials = {
+            username: 'admin',
+            password: '12345'
+        };
+
+        const accessibleTexts = {
+            Text1: 'This is the content of Text1.',
+            Text2: 'This is the content of Text2.'
+        };
+
+        let loggedIn = false;
+
+        function printToOutput(text) {
+            outputElement.innerHTML += text + '\n';
+            outputElement.scrollTop = outputElement.scrollHeight;
+        }
+
+        function processCommand(command) {
+            const parts = command.split(' ');
+            const mainCommand = parts[0];
+            if (mainCommand === '!login') {
+                if (parts.length === 3) {
+                    const username = parts[1];
+                    const password = parts[2];
+                    if (username === validCredentials.username && password === validCredentials.password) {
+                        loggedIn = true;
+                        printToOutput('Login successful!');
+                    } else {
+                        printToOutput('Invalid username or password.');
+                    }
+                } else {
+                    printToOutput('Usage: !login [username] [password]');
+                }
+            } else if (mainCommand === '!access') {
+                if (!loggedIn) {
+                    printToOutput('You must be logged in to use this command.');
+                    return;
+                }
+                if (parts.length === 2) {
+                    const textName = parts[1];
+                    if (accessibleTexts[textName]) {
+                        printToOutput(accessibleTexts[textName]);
+                    } else {
+                        printToOutput(`Text "${textName}" not found.`);
+                    }
+                } else {
+                    printToOutput('Usage: !access [textname]');
+                }
+            } else {
+                printToOutput(`Unknown command: ${mainCommand}`);
+            }
+        }
+
+        inputElement.addEventListener('input', function() {
+            measureElement.textContent = inputElement.value;
+            cursorElement.style.left = `${measureElement.offsetWidth}px`;
+        });
+
+        inputElement.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                const command = inputElement.value;
+                printToOutput(`> ${command}`);
+                processCommand(command);
+                inputElement.value = '';
+                measureElement.textContent = '';
+                cursorElement.style.left = '0px';
+            }
+        });
+
+        window.onload = function() {
+            printToOutput('Welcome to the terminal interface.');
+            inputElement.focus();
         };
 
         window.addEventListener('click', function() {
