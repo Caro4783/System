@@ -282,7 +282,7 @@
                     if (usersWithAccess && usersWithAccess.includes(currentUser)) {
                         printToOutput(textContent[textName]);
                     } else {
-                        printToOutput(`You do not have access to the text "${textName}".`, 'error');
+                        printToOutput(`You do not have access to this file "${textName}".`, 'error');
                     }
                 } else {
                     printToOutput('Usage: !access [textname]');
@@ -314,7 +314,7 @@
         });
 
         window.onload = function() {
-            printToOutput('Welcome to SynthiaAInet. v2.0 System status: Online, Stable');
+            printToOutput('Willkommen, sie benutzen SynthiaAInet. v2.0 System status: Online, Stable');
         };
 
         window.addEventListener('click', function() {
