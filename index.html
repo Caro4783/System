@@ -170,9 +170,18 @@
             'Z-12': 'Agent Silence',
         };
 
-        const accessibleTexts = {
-            Text1: 'This is the content of Text1.',
-            Text2: 'This is the content of Text2.'
+const accessibleTexts = {
+    'E-00': {
+        EthicText: 'This is the content of Text for Ethics Committee.',
+        Text2: 'This is the content of Text2 for E-00.'
+    },
+    'O5-03': {
+        O5Text: 'This is the content of Text2 for O5s.',
+        Text3: 'This is the content of Text3 for E-01.'
+    },
+    // Add more users and their respective accessible texts here
+};
+
         };
 
         const funResponses = {
@@ -260,26 +269,31 @@
                 } else {
                     printToOutput('Usage: !login [username] [password]');
                 }
-            } else if (mainCommand === '!access') {
-                if (!loggedIn) {
-                    printToOutput('You must be logged in to use this command.', 'error');
-                    return;
-                }
-                if (parts.length === 2) {
-                    const textName = parts[1];
-                    if (accessibleTexts[textName]) {
-                        printToOutput(accessibleTexts[textName]);
-                    } else {
-                        printToOutput(`Text "${textName}" not found.`, 'error');
-                    }
-                } else {
-                    printToOutput('Usage: !access [textname]');
-                }
-            } else {
-                handleFunCommands(command.toLowerCase());
-            }
+function processCommand(command) {
+    const parts = command.split(' ');
+    const mainCommand = parts[0];
+    if (mainCommand === '!login') {
+        // Login logic here
+    } else if (mainCommand === '!access') {
+        if (!loggedIn) {
+            printToOutput('You must be logged in to use this command.', 'error');
+            return;
         }
-
+        if (parts.length === 2) {
+            const textName = parts[1];
+            const userTexts = accessibleTexts[userGreetings[currentUser]]; // Assuming currentUser is set after successful login
+            if (userTexts && userTexts[textName]) {
+                printToOutput(userTexts[textName]);
+            } else {
+                printToOutput(`You do not have access to the text "${textName}".`, 'error');
+            }
+        } else {
+            printToOutput('Usage: !access [textname]');
+        }
+    } else {
+        handleFunCommands(command.toLowerCase());
+    }
+}
         function handleFunCommands(command) {
             if (funResponses.hasOwnProperty(command)) {
                 const responses = funResponses[command];
