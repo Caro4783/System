@@ -138,7 +138,7 @@
             'E-09': 'Lullaby',
             'E-10': 'Venom',
             'E-11': 'Bug',
-            'E-12': 'Leafon'
+            'E-12': 'Leafon',
 
             'O5-01': 'Eve',
             'O5-02': 'He Who Waits',
@@ -170,18 +170,20 @@
             'Z-12': 'Agent Silence',
         };
 
-const accessibleTexts = {
-    'E-00': {
-        EthicText: 'This is the content of Text for Ethics Committee.',
-        Text2: 'This is the content of Text2 for E-00.'
-    },
-    'O5-03': {
-        O5Text: 'This is the content of Text2 for O5s.',
-        Text3: 'This is the content of Text3 for E-01.'
-    },
-    // Add more users and their respective accessible texts here
-};
+        const accessibleTexts = {
+            'EthicText': ['E-00', 'E-01', 'E-02'],
+            'Text2': ['E-00', 'E-03', 'E-04'],
+            'O5Text': ['O5-01', 'O5-02', 'O5-03'],
+            'Text3': ['O5-04', 'O5-05', 'O5-06']
+            // Add more texts and their corresponding users here
+        };
 
+        const textContent = {
+            'EthicText': 'This is the content of Text for Ethics Committee.',
+            'Text2': 'This is the content of Text2 for E-00.',
+            'O5Text': 'This is the content of Text2 for O5s.',
+            'Text3': 'This is the content of Text3 for O5-04.'
+            // Add more texts and their contents here
         };
 
         const funResponses = {
@@ -194,7 +196,7 @@ const accessibleTexts = {
                 "Why don't scientists trust atoms? Because they make up everything!",
                 "I told my wife she was drawing her eyebrows too high. She looked surprised.",
                 "What do you get when you cross a snowman and a vampire? Frostbite.",
-                "How many D-Class do you need to change a lightbulb? Not more then 5 becaue then you need to ask the Ethics Committee."
+                "How many D-Class do you need to change a lightbulb? Not more than 5 because then you need to ask the Ethics Committee."
             ],
             'open the pod bay doors': [
                 "I'm sorry, Dave. I'm afraid I can't do that.",
@@ -214,6 +216,7 @@ const accessibleTexts = {
         };
 
         let loggedIn = false;
+        let currentUser = '';
 
         function printToOutput(text, className = '') {
             let index = 0;
@@ -258,9 +261,10 @@ const accessibleTexts = {
                 if (parts.length === 3) {
                     const username = parts[1];
                     const password = parts[2];
-                                        if (validCredentials[username] && validCredentials[username] === password) {
+                    if (validCredentials[username] && validCredentials[username] === password) {
                         showLoadingDots(() => {
                             loggedIn = true;
+                            currentUser = username;
                             printToOutput(`Login successful. Welcome ${userGreetings[username]} to SynthiaAI, how can I assist?`);
                         });
                     } else {
@@ -269,31 +273,27 @@ const accessibleTexts = {
                 } else {
                     printToOutput('Usage: !login [username] [password]');
                 }
-function processCommand(command) {
-    const parts = command.split(' ');
-    const mainCommand = parts[0];
-    if (mainCommand === '!login') {
-        // Login logic here
-    } else if (mainCommand === '!access') {
-        if (!loggedIn) {
-            printToOutput('You must be logged in to use this command.', 'error');
-            return;
-        }
-        if (parts.length === 2) {
-            const textName = parts[1];
-            const userTexts = accessibleTexts[userGreetings[currentUser]]; // Assuming currentUser is set after successful login
-            if (userTexts && userTexts[textName]) {
-                printToOutput(userTexts[textName]);
+            } else if (mainCommand === '!access') {
+                if (!loggedIn) {
+                    printToOutput('You must be logged in to use this command.', 'error');
+                    return;
+                }
+                if (parts.length === 2) {
+                    const textName = parts[1];
+                    const usersWithAccess = accessibleTexts[textName];
+                    if (usersWithAccess && usersWithAccess.includes(currentUser)) {
+                        printToOutput(textContent[textName]);
+                    } else {
+                        printToOutput(`You do not have access to the text "${textName}".`, 'error');
+                    }
+                } else {
+                    printToOutput('Usage: !access [textname]');
+                }
             } else {
-                printToOutput(`You do not have access to the text "${textName}".`, 'error');
+                handleFunCommands(command.toLowerCase());
             }
-        } else {
-            printToOutput('Usage: !access [textname]');
         }
-    } else {
-        handleFunCommands(command.toLowerCase());
-    }
-}
+
         function handleFunCommands(command) {
             if (funResponses.hasOwnProperty(command)) {
                 const responses = funResponses[command];
@@ -325,4 +325,3 @@ function processCommand(command) {
     </script>
 </body>
 </html>
-
