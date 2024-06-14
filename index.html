@@ -226,24 +226,25 @@
         }
 
         function processCommand(command) {
-            const parts = command.split(' ');
-            const mainCommand = parts[0];
-            if (mainCommand === '!login') {
-                if (parts.length === 3) {
-                    const username = parts[1];
-                    const password = parts[2];
-                    if (validCredentials[username] && validCredentials[username] === password) {
-                        showLoadingDots(() => {
-                            loggedIn = true;
-                            currentUser = username;
-                            printToOutput(`Login successful. Welcome ${userGreetings[username]} to SynthiaAI, how can I assist?`);
-                        });
-                    } else {
-                        printToOutput('Invalid username or password.', 'error');
-                    }
-                } else {
-                    printToOutput('Usage: !login [username] [password]');
-                }
+    const parts = command.split(' ');
+    const mainCommand = parts[0];
+    if (mainCommand === '!login') {
+        if (parts.length === 3) {
+            const username = parts[1];
+            const password = parts[2];
+            if (validCredentials[username] && validCredentials[username] === password) {
+                showLoadingDots(() => {
+                    loggedIn = true;
+                    currentUser = username;
+                    printToOutput(`Login successful. Welcome ${userGreetings[username]} to SynthiaAI, how can I assist?`);
+                    updatePrompt(); // Call function to update prompt after login
+                });
+            } else {
+                printToOutput('Invalid username or password.', 'error');
+            }
+        } else {
+            printToOutput('Usage: !login [username] [password]');
+        }
             } else if (mainCommand === '!access') {
                 if (!loggedIn) {
                     printToOutput('You must be logged in to use this command.', 'error');
@@ -264,7 +265,10 @@
                 handleFunCommands(command.toLowerCase());
             }
         }
-
+        function updatePrompt() {
+    const promptElement = document.getElementById('prompt');
+    promptElement.textContent = `C:\\User\\${currentUser}\\Synthia> `;
+}
         function handleFunCommands(command) {
             if (funResponses.hasOwnProperty(command)) {
                 const responses = funResponses[command];
