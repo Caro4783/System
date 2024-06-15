@@ -40,22 +40,17 @@
             font-size: inherit;
             outline: none;
             caret-color: transparent;
-            /* Hide the default caret */
             position: absolute;
-            /* Position the input element absolutely */
             opacity: 0;
-            /* Make the input element invisible */
         }
 
         .cursor {
             background-color: #0f0;
             width: 8px;
             height: 1.1em;
-            /* Match the line height */
             animation: blink 1s step-end infinite;
             position: absolute;
             pointer-events: none;
-            /* Ensure the custom caret doesn't interfere with input */
         }
 
         @keyframes blink {
@@ -353,9 +348,11 @@
         inputElement.addEventListener('keydown', function(event) {
             if (event.key === 'Enter') {
                 const command = inputElement.value;
-                outputElement.innerHTML += `C:\\User\\Guest\\Synthia> ${command}\n`;
+                outputElement.innerHTML += `${document.getElementById('prompt').textContent} ${command}\n`;
                 processCommand(command);
                 inputElement.value = '';
+                inputTextElement.textContent = ''; // Clear the input text span
+                updateCursor(); // Update the cursor position after clearing the input
                 cursorElement.style.display = 'inline-block';
                 cursorElement.style.animationPlayState = 'running';
             }
