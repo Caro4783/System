@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,19 +13,24 @@
             margin: 0;
             padding: 20px;
         }
+
         #terminal {
             max-width: 800px;
         }
+
         #output {
             white-space: pre-wrap;
             word-wrap: break-word;
         }
+
         #input-line {
             display: flex;
         }
+
         #prompt {
             padding-right: 10px;
         }
+
         input {
             background: none;
             border: none;
@@ -33,22 +39,56 @@
             font-family: inherit;
             font-size: inherit;
             outline: none;
+            caret-color: transparent;
+            /* Hide the default caret */
+            position: absolute;
+            /* Position the input element absolutely */
+            opacity: 0;
+            /* Make the input element invisible */
+        }
+
+        .cursor {
+            background-color: #0f0;
+            width: 8px;
+            height: 1.1em;
+            /* Match the line height */
+            animation: blink 1s step-end infinite;
+            position: absolute;
+            pointer-events: none;
+            /* Ensure the custom caret doesn't interfere with input */
+        }
+
+        @keyframes blink {
+            50% {
+                opacity: 0;
+            }
+        }
+
+        #input-wrapper {
+            position: relative;
+            flex-grow: 1;
         }
     </style>
 </head>
+
 <body>
     <div id="terminal">
         <div id="output"></div>
         <div id="input-line">
             <span id="prompt">C:\User\Guest\Synthia&gt;</span>
-            <input type="text" id="input" autocomplete="off">
-            <span class="cursor"></span>
+            <div id="input-wrapper">
+                <input type="text" id="input" autocomplete="off">
+                <div class="cursor"></div>
+                <span id="input-text"></span>
+            </div>
         </div>
     </div>
     <script>
         const outputElement = document.getElementById('output');
         const inputElement = document.getElementById('input');
         const cursorElement = document.querySelector('.cursor');
+        const inputTextElement = document.getElementById('input-text');
+        const inputWrapper = document.getElementById('input-wrapper');
 
         const validCredentials = {
             'E-00': 'Ethicc123',
@@ -93,9 +133,8 @@
             'Z-10': '527Stinkt',
             'Z-11': '527Stinkt',
             'Z-12': '527Stinkt',
-     // Wer das benutzt Meta und so, voll frech im Code zu schauen >:c
         };
-                
+
         const userGreetings = {
             'E-00': '"Eldritch"',
             'E-01': '"[ERROR 404]"',
@@ -142,11 +181,10 @@
         };
 
         const accessibleTexts = {
-            'EthikText': ['E-01', 'E-02', 'E-03','E-04', 'E-05', 'E-06', 'E-07', 'E-08','E-09', 'E-10', 'E-11','E-12', 'E-00', 'admin'],
-            'ZifferText': ['Z-01', 'Z-02', 'Z-03','Z-04', 'Z-05', 'Z-06', 'Z-07', 'Z-08','Z-09', 'Z-10', 'Z-11','Z-12', 'Z-00', 'admin'],
-            'O5Text': ['O5-01', 'O5-02', 'O5-03','O5-04', 'O5-05', 'O5-06', 'O5-07', 'O5-08','O5-09', 'O5-10', 'O5-11','O5-12', 'O5-13', 'admin'],
-            'SCP-173': ['E-01', 'E-02', 'E-03','E-04', 'E-05', 'E-06', 'E-07', 'E-08','E-09', 'E-10', 'E-11','E-12', 'E-00','Z-01', 'Z-02', 'Z-03','Z-04', 'Z-05', 'Z-06', 'Z-07', 'Z-08','Z-09', 'Z-10', 'Z-11','Z-12', 'Z-00','O5-01', 'O5-02', 'O5-03','O5-04', 'O5-05', 'O5-06', 'O5-07', 'O5-08','O5-09', 'O5-10', 'O5-11','O5-12', 'O5-13','admin']
-            // Add more texts and their corresponding users here
+            'EthikText': ['E-01', 'E-02', 'E-03', 'E-04', 'E-05', 'E-06', 'E-07', 'E-08', 'E-09', 'E-10', 'E-11', 'E-12', 'E-00', 'admin'],
+            'ZifferText': ['Z-01', 'Z-02', 'Z-03', 'Z-04', 'Z-05', 'Z-06', 'Z-07', 'Z-08', 'Z-09', 'Z-10', 'Z-11', 'Z-12', 'Z-00', 'admin'],
+            'O5Text': ['O5-01', 'O5-02', 'O5-03', 'O5-04', 'O5-05', 'O5-06', 'O5-07', 'O5-08', 'O5-09', 'O5-10', 'O5-11', 'O5-12', 'O5-13', 'admin'],
+            'SCP-173': ['E-01', 'E-02', 'E-03', 'E-04', 'E-05', 'E-06', 'E-07', 'E-08', 'E-09', 'E-10', 'E-11', 'E-12', 'E-00', 'Z-01', 'Z-02', 'Z-03', 'Z-04', 'Z-05', 'Z-06', 'Z-07', 'Z-08', 'Z-09', 'Z-10', 'Z-11', 'Z-12', 'Z-00', 'O5-01', 'O5-02', 'O5-03', 'O5-04', 'O5-05', 'O5-06', 'O5-07', 'O5-08', 'O5-09', 'O5-10', 'O5-11', 'O5-12', 'O5-13', 'admin']
         };
 
         const textContent = {
@@ -154,14 +192,13 @@
             'ZifferText': 'This is the content of Text for Ziffer.',
             'O5Text': 'This is the content of Text for O5s.',
             'SCP-173': 'Item #: SCP-173\n\nObject Class: Euclid\n\nSpecial Containment Procedures: Item SCP-173 is to be kept in a locked container at all times. When personnel must enter SCP-173s container, no fewer than 3 may enter at any time and the door is to be relocked behind them. At all times, two persons must maintain direct eye contact with SCP-173 until all personnel have vacated and relocked the container.\n\nDescription: Moved to Site-19 1993. Origin is as of yet unknown. It is constructed from concrete and rebar with traces of Krylon brand spray paint. SCP-173 is animate and extremely hostile. The object cannot move while within a direct line of sight. Line of sight must not be broken at any time with SCP-173. Personnel assigned to enter container are instructed to alert one another before blinking. Object is reported to attack by snapping the neck at the base of the skull, or by strangulation. In the event of an attack, personnel are to observe Class 4 hazardous object containment procedures.\nPersonnel report sounds of scraping stone originating from within the container when no one is present inside. This is considered normal, and any change in this behavior should be reported to the acting HMCL supervisor on duty.\nThe reddish brown substance on the floor is a combination of feces and blood. Origin of these materials is unknown. The enclosure must be cleaned on a bi-weekly basis.'
-            // Add more texts and their contents here
         };
 
         const funResponses = {
             'define shot': [
-                "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣀⣀⣠⣤⣤⣄⣀⣀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⠤⠖⠊⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠙⠲⢤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n⠀⠀⠀⠀⠀⠀⠀⡤⠊⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n⠀⠀⠀⠀⠀⠀⡜⠀⠀⠀⠀⠀⠀⢀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢢⠀⠀⠀⠀⠀⢳⠀⠀⠀⠀⠀⠀⠀⠀⠀\n⠀⠀⠀⠀⠀⣸⠁⠀⠀⠀⠀⠀⠀⠀⠱⡀⠀⠀⠀⠀⠀⠀⠀⡀⠈⠀⡀⠀⠀⠀⠈⡇⠀⠀⠀⠀⠀⠀⠀⠀\n⠀⠀⠀⠀⠀⡏⠀⠀⠀⠀⠀⠀⠀⠀⡰⠁⠀⠀⠀⠀⠀⠀⠀⠘⡆⡜⠁⠀⠀⠀⠀⢧⡀⠀⠀⠀⠀⠀⠀⠀\n⠀⠀⠀⠀⠀⡇⠀⠀⠀⠀⠀⠀⠀⠸⡀⠀⠀⠀⠀⠀⣀⣤⡂⠀⠇⠱⠀⡀⠀⠀⠀⠀⡇⠀⠀⠀⠀⠀⠀⠀\n⠀⠀⠀⠀⠀⢇⠀⠀⠀⠀⠀⠀⠀⠀⠈⢄⡀⢠⣟⢭⣥⣤⠽⡆⠀⡶⣊⣉⣲⣤⢀⡞⠀⠀⠀⠀⠀⠀⠀⠀\n⠀⠀⠀⠀⠀⠘⣆⠀⠀⠀⠀⠀⠀⡀⠀⠐⠂⠘⠄⣈⣙⡡⡴⠀⠀⠙⣄⠙⣛⠜⠘⣆⠀⠀⠀⠀⠀⠀⠀⠀\n⠀⠀⠀⠀⠀⠀⠈⢦⡀⠀⠀⠀⢸⠁⠀⠀⠀⠀⠀⠀⠄⠊⠀⠀⠀⠀⡸⠛⠀⠀⠀⢸⠆⠀⠀⠀⠀⠀⠀⠀\n⠀⠀⠀⠀⠀⠀⠀⠀⠈⠓⠦⢄⣘⣄⠀⠀⠀⠀⠀⠀⠀⡠⠀⠀⠀⠀⣇⡀⠀⠀⣠⠎⠀⠀⠀⠀⠀⠀⠀⠀\n⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣸⠁⠈⡟⠒⠲⣄⠀⠀⡰⠇⠖⢄⠀⠀⡹⡇⢀⠎⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀\n⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡇⠀⠀⡇⠀⠀⠹⠀⡞⠀⠀⢀⠤⣍⠭⡀⢱⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n⠀⠀⠀⠀⠀⠀⢀⣀⣀⣠⠞⠀⠀⢠⡇⠀⠀⠀⠀⠁⠀⢴⠥⠤⠦⠦⡼⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n⣀⣤⣴⣶⣿⣿⡟⠁⠀⠋⠀⠀⠀⢸⠁⠀⠀⠀⠀⠀⠀⠀⠑⣠⢤⠐⠁⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n⣿⣿⣿⣿⣿⡟⠀⠀⠀⠀⠀⠀⠀⢸⡀⠀⠀⠀⠀⠀⠀⠀⠀⠬⠥⣄⠀⠀⠈⠲⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀\n⣿⣿⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠙⠦⣄⠀⠀⠀⠀⠀⠀⠀⠀⠈⢳⠀⠀⢀⣿⡀⠀⠀⠀⠀⠀⠀⠀⠀\n⣿⣿⣿⣿⣿⣧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⠒⠦⠤⢤⣄⣀⣠⠤⢿⣶⣶⣿⣿⣿⣶⣤⡀⠀⠀⠀⠀⠀\n⣿⣿⣿⣿⣿⣿⣷⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡼⠁⠀⠀⣠⣾⣿⣿⣿⣿⣿⣿⣿⣿⣄⠀⠀⠀⠀\n⣿⣿⣿⣿⣿⣿⣿⣿⣿⣶⣦⣤⣤⣀⣀⣀⣀⣀⣀⣀⣤⣤⣤⣶⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀\n"
+                "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣀⣀⣠⣤⣤⣄⣀⣀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⠤⠖⠊⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠙⠲⢤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n⠀⠀⠀⠀⠀⠀⠀⡤⠊⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n⠀⠀⠀⠀⠀⠀⡜⠀⠀⠀⠀⠀⠀⢀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢢⠀⠀⠀⠀⠀⢳⠀⠀⠀⠀⠀⠀⠀⠀⠀\n⠀⠀⠀⠀⠀⣸⠁⠀⠀⠀⠀⠀⠀⠀⠱⡀⠀⠀⠀⠀⠀⠀⠀⡀⠈⠀⡀⠀⠀⠀⠈⡇⠀⠀⠀⠀⠀⠀⠀⠀\n⠀⠀⠀⠀⠀⡏⠀⠀⠀⠀⠀⠀⠀⠀⡰⠁⠀⠀⠀⠀⠀⠀⠀⠘⡆⡜⠁⠀⠀⠀⠀⢧⡀⠀⠀⠀⠀⠀⠀⠀\n⠀⠀⠀⠀⠀⡇⠀⠀⠀⠀⠀⠀⠀⠸⡀⠀⠀⠀⠀⠀⣀⣤⡂⠀⠇⠱⠀⡀⠀⠀⠀⠀⡇⠀⠀⠀⠀⠀⠀⠀\n⠀⠀⠀⠀⠀⢇⠀⠀⠀⠀⠀⠀⠀⠀⠈⢄⡀⢠⣟⢭⣥⣤⠽⡆⠀⡶⣊⣉⣲⣤⢀⡞⠀⠀⠀⠀⠀⠀⠀⠀\n⠀⠀⠀⠀⠀⠘⣆⠀⠀⠀⠀⠀⠀⡀⠀⠐⠂⠘⠄⣈⣙⡡⡴⠀⠀⠙⣄⠙⣛⠜⠘⣆⠀⠀⠀⠀⠀⠀⠀⠀\n⠀⠀⠀⠀⠀⠀⠈⢦⡀⠀⠀⠀⢸⠁⠀⠀⠀⠀⠀⠀⠄⠊⠀⠀⠀⠀⡸⠛⠀⠀⠀⢸⠆⠀⠀⠀⠀⠀⠀⠀\n⠀⠀⠀⠀⠀⠀⠀⠀⠈⠓⠦⢄⣘⣄⠀⠀⠀⠀⠀⠀⠀⡠⠀⠀⠀⠀⣇⡀⠀⠀⣠⠎⠀⠀⠀⠀⠀⠀⠀⠀\n⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣸⠁⠈⡟⠒⠲⣄⠀⠀⡰⠇⠖⢄⠀⠀⡹⡇⢀⠎⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀\n⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡇⠀⠀⡇⠀⠀⠹⠀⡞⠀⠀⢀⠤⣍⠭⡀⢱⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n⠀⠀⠀⠀⠀⠀⢀⣀⣀⣠⠞⠀⠀⢠⡇⠀⠀⠀⠀⠁⠀⢴⠥⠤⠦⠦⡼⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n⣀⣤⣴⣶⣿⣿⡟⠁⠀⠋⠀⠀⠀⢸⠁⠀⠀⠀⠀⠀⠀⠀⠑⣠⢤⠐⠁⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n⣿⣿⣿⣿⣿⡟⠀⠀⠀⠀⠀⠀⠀⢸⡀⠀⠀⠀⠀⠀⠀⠀⠀⠬⠥⣄⠀⠀⠈⠲⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀\n⣿⣿⣿⣿⣿⣇⠀⠀⠀⠀⠀⠀⠀⠀⠙⠦⣄⠀⠀⠀⠀⠀⠀⠀⠀⠈⢳⠀⠀⢀⣿⡀⠀⠀⠀⠀⠀⠀⠀⠀\n⣿⣿⣿⣿⣿⣿⣷⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⠒⠦⠤⢤⣄⣀⣠⠤⢿⣶⣶⣿⣿⣿⣶⣤⡀⠀⠀⠀⠀⠀\n⣿⣿⣿⣿⣿⣿⣿⣿⣿⣶⣦⣤⣤⣀⣀⣀⣀⣀⣀⣤⣤⣤⣶⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀\n"
             ],
-            'supersecret': [ 
+            'supersecret': [
                 "⣿⣿⣿⣿⣇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠛⠻⣿⣿⣿⣿⣿⣿\n⣿⣿⣿⣿⣿⣦⠀⠀⠀⠀⠀⠀⠀⠀⢀⣤⣄⡀⠀⢻⣿⣿⣿⣿⣿\n⣿⣿⣿⣿⣿⣿⣇⠀⠀⠀⠀⠀⠀⠀⠸⣿⣿⣿⠃⢰⣿⣿⣿⣿⣿\n⣿⣿⣿⣿⣿⣿⣿⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣼⣿⣿⣿⣿⣿\n⣿⣿⣿⣿⣿⣿⣿⣿⡆⠀⠀⠀⠀⠀⠀⢶⣶⣶⣾⣿⣿⣿⣿⣿⣿\n⣿⣿⣿⣿⣿⣿⣿⣿⣧⠀⢠⡀⠐⠀⠀⠀⠻⢿⣿⣿⣿⣿⣿⣿⣿\n⣿⣿⣿⣿⣿⣿⣿⣿⣿⡄⢸⣷⡄⠀⠣⣄⡀⠀⠉⠛⢿⣿⣿⣿⣿\n⣿⣿⣿⣿⣿⣿⣿⣿⣿⣇⠀⣿⣿⣦⠀⠹⣿⣷⣶⣦⣼⣿⣿⣿⣿\n⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣼⣿⣿⣿⣷⣄⣸⣿⣿⣿⣿⣿⣿⣿⣿\n⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿\n⣿⣿⡿⢛⡙⢻⠛⣉⢻⣉⢈⣹⣿⣿⠟⣉⢻⡏⢛⠙⣉⢻⣿⣿⣿\n⣿⣿⣇⠻⠃⣾⠸⠟⣸⣿⠈⣿⣿⣿⡀⠴⠞⡇⣾⡄⣿⠘⣿⣿⣿\n⣿⣿⣟⠛⣃⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣿⣿⣿⣿⣿\n⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿\n"
             ],
             'joke': [
@@ -171,9 +208,6 @@
             'define silver': [
                 "Oh she is a nice and sweet Person sometimes we wr- Oh u meant the Scientific element: Silver. Here are some Infos about it. It is a transition metal element, with symbol Ag, atomic number 47, and atomic weight of 107.8682. ",
                 "⠄⠄⠄⢰⣧⣼⣯⠄⣸⣠⣶⣶⣦⣾⠄⠄⠄⠄⡀⠄⢀⣿⣿⠄⠄⠄⢸⡇⠄⠄\n⠄⠄⠄⣾⣿⠿⠿⠶⠿⢿⣿⣿⣿⣿⣦⣤⣄⢀⡅⢠⣾⣛⡉⠄⠄⠄⠸⢀⣿⠄\n⠄⠄⢀⡋⣡⣴⣶⣶⡀⠄⠄⠙⢿⣿⣿⣿⣿⣿⣴⣿⣿⣿⢃⣤⣄⣀⣥⣿⣿⠄\n⠄⠄⢸⣇⠻⣿⣿⣿⣧⣀⢀⣠⡌⢻⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠿⠿⣿⣿⣿⠄\n⠄⢀⢸⣿⣷⣤⣤⣤⣬⣙⣛⢿⣿⣿⣿⣿⣿⣿⡿⣿⣿⡍⠄⠄⢀⣤⣄⠉⠋⣰\n⠄⣼⣖⣿⣿⣿⣿⣿⣿⣿⣿⣿⢿⣿⣿⣿⣿⣿⢇⣿⣿⡷⠶⠶⢿⣿⣿⠇⢀⣤\n⠘⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣽⣿⣿⣿⡇⣿⣿⣿⣿⣿⣿⣷⣶⣥⣴⣿⡗\n⢀⠈⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡟⠄\n⢸⣿⣦⣌⣛⣻⣿⣿⣧⠙⠛⠛⡭⠅⠒⠦⠭⣭⡻⣿⣿⣿⣿⣿⣿⣿⣿⡿⠃⠄\n⠘⣿⣿⣿⣿⣿⣿⣿⣿⡆⠄⠄⠄⠄⠄⠄⠄⠄⠹⠈⢋⣽⣿⣿⣿⣿⣵⣾⠃⠄\n⠄⠘⣿⣿⣿⣿⣿⣿⣿⣿⠄⣴⣿⣶⣄⠄⣴⣶⠄⢀⣾⣿⣿⣿⣿⣿⣿⠃⠄⠄\n⠄⠄⠈⠻⣿⣿⣿⣿⣿⣿⡄⢻⣿⣿⣿⠄⣿⣿⡀⣾⣿⣿⣿⣿⣛⠛⠁⠄⠄⠄\n⠄⠄⠄⠄⠈⠛⢿⣿⣿⣿⠁⠞⢿⣿⣿⡄⢿⣿⡇⣸⣿⣿⠿⠛⠁⠄⠄⠄⠄⠄\n⠄⠄⠄⠄⠄⠄⠄⠉⠻⣿⣿⣾⣦⡙⠻⣷⣾⣿⠃⠿⠋⠁⠄⠄⠄⠄⠄⢀⣠⣴\n⣿⣿⣿⣶⣶⣮⣥⣒⠲⢮⣝⡿⣿⣿⡆⣿⡿⠃⠄⠄⠄⠄⠄⠄⠄⣠⣴⣿⣿⣿",
-            ],
-            'define ass': [
-                "⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠘⠹⣶⣿⠷⢃⡆⠻⢈⣿⣿\n⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⢉⣴⣿⣷⢱⢠⡘⣿⣿\n⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⣀⣴⣿⠿⣫⣾⢈⣸⣷⠹⣿\n⠄⠄⠄⠄⠄⠄⠄⠄⠄⣀⣤⣶⣾⣿⣿⣿⣷⣶⣶⣬⡩⣵⣿⣿⣿⡘⢹⣿⢠⣄\n⠄⠄⠄⠄⠄⠄⠄⣠⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣮⢻⣿⣿⣞⡄⢿⣜⣿\n⠄⠄⠄⠄⠄⢀⣼⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣇⣿⣿⣋⠄⠙⠉⠛\n⠄⠄⠄⠄⢀⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢸⣷⠇⠄⠄⠄⠄\n⠄⠄⠄⠄⣼⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡟⠄⣿⡄⠄⠄⠄⠄\n⡀⠄⠄⢠⣿⣿⣿⡿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠄⠄⠘⠇⠄⠄⠄⠄\n⣶⣾⣿⣷⡹⣿⣿⣿⣎⢿⣿⣿⣿⣿⣿⣿⣿⡿⠿⣛⣵⣿⣷⣶⣤⡀⠄⠄⠄⠄\n⣿⣿⣿⣿⣿⣮⣿⡿⠿⣛⣢⢩⣭⣭⣭⣭⣶⣿⣿⣿⣿⣿⣿⣿⣿⣷⠄⠄⠄⠄\n⣿⣿⣿⠿⣫⣾⣿⣿⣿⣿⣿⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠄⠄⠄⠄\n⠿⢟⣭⣾⣿⣿⣿⣿⣿⣿⣿⣮⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠃⠄⠄⠄⠄\n⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⢛⣁⣀⣀⣀⣀⣀\n"
             ],
             'life': [
                 "Die Antwort auf die ultimative Frage des Lebens, des Universums, und allem is 42.\n",
@@ -188,35 +222,67 @@
         let loggedIn = false;
         let currentUser = '';
 
-function printToOutput(text, className = '', typingSpeed = 10) {
-    inputElement.disabled = true; // Disable the input field
-    let index = 0;
-    function typeNextChar() {
-        if (index < text.length) {
-            if (className) {
-                outputElement.innerHTML += `<span class="${className}">${text[index]}</span>`;
-            } else {
-                outputElement.innerHTML += text[index];
-            }
-            index++;
-            outputElement.scrollTop = outputElement.scrollHeight;
-            setTimeout(typeNextChar, typingSpeed); // Adjust the typing speed here
-        } else {
-            outputElement.innerHTML += '\n';
-            inputElement.disabled = false; // Re-enable the input field
-            inputElement.focus(); // Focus back on the input field
-        }
-    }
-    typeNextChar();
-}
+        // Update cursor position
+        function updateCursor() {
+            const inputText = inputElement.value;
+            const cursorPosition = inputElement.selectionStart;
+            inputTextElement.textContent = inputText;
 
+            // Create a temporary span to calculate the width of the text before the cursor
+            const tempSpan = document.createElement('span');
+            tempSpan.style.visibility = 'hidden';
+            tempSpan.style.position = 'absolute';
+            tempSpan.style.whiteSpace = 'pre';
+            tempSpan.textContent = inputText.slice(0, cursorPosition);
+            inputWrapper.appendChild(tempSpan);
+
+            // Calculate the cursor's position
+            const cursorX = tempSpan.offsetWidth;
+            cursorElement.style.left = `${cursorX}px`;
+
+            // Clean up the temporary span
+            inputWrapper.removeChild(tempSpan);
+        }
+
+        // Initial cursor position
+        updateCursor();
+
+        // Event listeners to update cursor position
+        inputElement.addEventListener('input', updateCursor);
+        inputElement.addEventListener('click', updateCursor);
+        inputElement.addEventListener('keydown', updateCursor);
+        inputElement.addEventListener('keyup', updateCursor);
+
+        function printToOutput(text, className = '', typingSpeed = 10) {
+            inputElement.disabled = true; // Disable the input field
+            let index = 0;
+
+            function typeNextChar() {
+                if (index < text.length) {
+                    if (className) {
+                        outputElement.innerHTML += `<span class="${className}">${text[index]}</span>`;
+                    } else {
+                        outputElement.innerHTML += text[index];
+                    }
+                    index++;
+                    outputElement.scrollTop = outputElement.scrollHeight;
+                    setTimeout(typeNextChar, typingSpeed); // Adjust the typing speed here
+                } else {
+                    outputElement.innerHTML += '\n';
+                    inputElement.disabled = false; // Re-enable the input field
+                    inputElement.focus(); // Focus back on the input field
+                }
+            }
+            typeNextChar();
+        }
 
         function showLoadingDots(callback) {
             const loadingText = 'Loading';
             let dots = '';
             let count = 0;
+
             function addDot() {
-                if (count < 0) {
+                if (count < 3) {
                     dots += '.';
                     printToOutput(loadingText + dots);
                     count++;
@@ -227,28 +293,27 @@ function printToOutput(text, className = '', typingSpeed = 10) {
             }
             addDot();
         }
-// Karteileiche, evtl. wieder einfügung^^
 
         function processCommand(command) {
-    const parts = command.split(' ');
-    const mainCommand = parts[0];
-    if (mainCommand === 'login') {
-        if (parts.length === 3) {
-            const username = parts[1];
-            const password = parts[2];
-            if (validCredentials[username] && validCredentials[username] === password) {
-                showLoadingDots(() => {
-                    loggedIn = true;
-                    currentUser = username;
-                    printToOutput(`Login erfolgreich. Willkommen ${userGreetings[username]} zu SynthiaOS.`);
-                    updatePrompt(); // Call function to update prompt after login
-                });
-            } else {
-                printToOutput('Ungültiger Nutzername oder Passwort.\n', 'error');
-            }
-        } else {
-            printToOutput('Format: login [username] [password]\n');
-        }
+            const parts = command.split(' ');
+            const mainCommand = parts[0];
+            if (mainCommand === 'login') {
+                if (parts.length === 3) {
+                    const username = parts[1];
+                    const password = parts[2];
+                    if (validCredentials[username] && validCredentials[username] === password) {
+                        showLoadingDots(() => {
+                            loggedIn = true;
+                            currentUser = username;
+                            printToOutput(`Login erfolgreich. Willkommen ${userGreetings[username]} zu SynthiaOS.`);
+                            updatePrompt(); // Call function to update prompt after login
+                        });
+                    } else {
+                        printToOutput('Ungültiger Nutzername oder Passwort.\n', 'error');
+                    }
+                } else {
+                    printToOutput('Format: login [username] [password]\n');
+                }
             } else if (mainCommand === 'access') {
                 if (!loggedIn) {
                     printToOutput('Dieser Nutzer ist nicht berechtigt diesen Befehl zu verwenden.\n', 'error');
@@ -271,9 +336,10 @@ function printToOutput(text, className = '', typingSpeed = 10) {
         }
 
         function updatePrompt() {
-    const promptElement = document.getElementById('prompt');
-    promptElement.textContent = `C:\\User\\classified\\${currentUser}\\Synthia> `;
-}
+            const promptElement = document.getElementById('prompt');
+            promptElement.textContent = `C:\\User\\classified\\${currentUser}\\Synthia> `;
+        }
+
         function handleFunCommands(command) {
             if (funResponses.hasOwnProperty(command)) {
                 const responses = funResponses[command];
@@ -304,4 +370,5 @@ function printToOutput(text, className = '', typingSpeed = 10) {
         });
     </script>
 </body>
+
 </html>
