@@ -176,9 +176,9 @@
                 "⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠘⠹⣶⣿⠷⢃⡆⠻⢈⣿⣿\n⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⢉⣴⣿⣷⢱⢠⡘⣿⣿\n⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⣀⣴⣿⠿⣫⣾⢈⣸⣷⠹⣿\n⠄⠄⠄⠄⠄⠄⠄⠄⠄⣀⣤⣶⣾⣿⣿⣿⣷⣶⣶⣬⡩⣵⣿⣿⣿⡘⢹⣿⢠⣄\n⠄⠄⠄⠄⠄⠄⠄⣠⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣮⢻⣿⣿⣞⡄⢿⣜⣿\n⠄⠄⠄⠄⠄⢀⣼⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣇⣿⣿⣋⠄⠙⠉⠛\n⠄⠄⠄⠄⢀⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢸⣷⠇⠄⠄⠄⠄\n⠄⠄⠄⠄⣼⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡟⠄⣿⡄⠄⠄⠄⠄\n⡀⠄⠄⢠⣿⣿⣿⡿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠄⠄⠘⠇⠄⠄⠄⠄\n⣶⣾⣿⣷⡹⣿⣿⣿⣎⢿⣿⣿⣿⣿⣿⣿⣿⡿⠿⣛⣵⣿⣷⣶⣤⡀⠄⠄⠄⠄\n⣿⣿⣿⣿⣿⣮⣿⡿⠿⣛⣢⢩⣭⣭⣭⣭⣶⣿⣿⣿⣿⣿⣿⣿⣿⣷⠄⠄⠄⠄\n⣿⣿⣿⠿⣫⣾⣿⣿⣿⣿⣿⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠄⠄⠄⠄\n⠿⢟⣭⣾⣿⣿⣿⣿⣿⣿⣿⣮⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠃⠄⠄⠄⠄\n⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⢛⣁⣀⣀⣀⣀⣀\n"
             ],
             'life': [
-                "Die Antwort auf die ultimative Frage des Lebens, des Universums, und allem is 42.",
-                "42",
-                "Bananen"
+                "Die Antwort auf die ultimative Frage des Lebens, des Universums, und allem is 42.\n",
+                "42\n",
+                "Bananen\n"
             ],
             'help': [
                 "help - Zeigt diesen Hilfstext an\nlogin - Verwendet zum Einloggen des Profiles, Format: login 'Kennung' 'Passwort'\naccess - zum zugreifen auf Dateien, Format: access 'Datei-Name'\njoke - Erzählt einen Witz\nlife - Gibt den Sinn des Lebens an "
@@ -188,7 +188,7 @@
         let loggedIn = false;
         let currentUser = '';
 
-function printToOutput(text, className = '', typingSpeed = 25) {
+function printToOutput(text, className = '', typingSpeed = 10) {
     inputElement.disabled = true; // Disable the input field
     let index = 0;
     function typeNextChar() {
@@ -240,18 +240,18 @@ function printToOutput(text, className = '', typingSpeed = 25) {
                 showLoadingDots(() => {
                     loggedIn = true;
                     currentUser = username;
-                    printToOutput(`Login successful. Welcome ${userGreetings[username]} to SynthiaAI, how can I assist?`);
+                    printToOutput(`Login erfolgreich. Willkommen ${userGreetings[username]} zu SynthiaOS.`);
                     updatePrompt(); // Call function to update prompt after login
                 });
             } else {
-                printToOutput('Invalid username or password.', 'error');
+                printToOutput('Ungültiger Nutzername oder Passwort.\n', 'error');
             }
         } else {
-            printToOutput('Usage: login [username] [password]');
+            printToOutput('Format: login [username] [password]\n');
         }
             } else if (mainCommand === 'access') {
                 if (!loggedIn) {
-                    printToOutput('You must be logged in to use this command.', 'error');
+                    printToOutput('Dieser Nutzer ist nicht berechtigt diesen Befehl zu verwenden.\n', 'error');
                     return;
                 }
                 if (parts.length === 2) {
@@ -260,10 +260,10 @@ function printToOutput(text, className = '', typingSpeed = 25) {
                     if (usersWithAccess && usersWithAccess.includes(currentUser)) {
                         printToOutput(textContent[textName]);
                     } else {
-                        printToOutput(`You do not have access to the file "${textName}".`, 'error');
+                        printToOutput(`Fehlende Berechtigung Datei "${textName}" zu nutzen.\n`, 'error');
                     }
                 } else {
-                    printToOutput('Usage: access [textname]');
+                    printToOutput('Format: access [Dateiname]');
                 }
             } else {
                 handleFunCommands(command.toLowerCase());
@@ -272,7 +272,7 @@ function printToOutput(text, className = '', typingSpeed = 25) {
 
         function updatePrompt() {
     const promptElement = document.getElementById('prompt');
-    promptElement.textContent = `C:\\User\\${currentUser}\\Synthia> `;
+    promptElement.textContent = `C:\\User\\classified\\${currentUser}\\Synthia> `;
 }
         function handleFunCommands(command) {
             if (funResponses.hasOwnProperty(command)) {
@@ -280,7 +280,7 @@ function printToOutput(text, className = '', typingSpeed = 25) {
                 const randomIndex = Math.floor(Math.random() * responses.length);
                 printToOutput(responses[randomIndex]);
             } else {
-                printToOutput("I'm sorry, I don't understand that command.", 'error');
+                printToOutput("Der Befehl ist entweder falsch geschrieben oder konnte nicht gefunden werden.\n", 'error');
             }
         }
 
